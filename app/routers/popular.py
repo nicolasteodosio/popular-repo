@@ -1,6 +1,13 @@
 from logging import Logger
 
-from exceptions import CalculateScoreException, GitHubServiceRequestException
+from exceptions import (
+    CalculateScoreException,
+    GitHubServiceRequestException,
+    RepositoryForbiddenException,
+    RepositoryMovedPermanently,
+    RepositoryNameException,
+    RepositoryNotFoundException,
+)
 from fastapi.encoders import jsonable_encoder
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -30,6 +37,36 @@ class PopularView:
             popular_data = self.popular_service.calculate_score(repository_data=repo_data)
 
             return JSONResponse(content=jsonable_encoder(popular_data), status_code=status.HTTP_200_OK)
+
+        except RepositoryNotFoundException as ex:
+            msg = f"repository {repository_name} not found"
+            logger.error(f"{msg}, ex: {ex}")
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"title": "Error", "message": msg},
+            )
+
+        except RepositoryNameException as ex:
+            msg = "An error occurred when trying to parse repository name"
+            logger.error(f"{msg}, ex: {ex}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"title": "Error", "message": msg},
+            )
+
+        except RepositoryForbiddenException as ex:
+            logger.error(f"Error when retrieving repository info, ex: {ex}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"title": "Error", "message": "An error occurred when trying to get repository info"},
+            )
+
+        except RepositoryMovedPermanently as ex:
+            logger.error(f"Error when retrieving repository info, ex: {ex}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"title": "Error", "message": "An error occurred when trying to get repository info"},
+            )
 
         except GitHubServiceRequestException as ex:
             logger.error(f"Error when retrieving repository info, ex: {ex}")
