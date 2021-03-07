@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from nicelog import setup_logging
+from routers.popular import PopularView
 from routers.utils import UtilsView
 
 API_VERSION = "v1"
@@ -19,6 +20,8 @@ def create_app():
 
 def configure_routers(app):
     app.include_router(UtilsView().get_router(), prefix=f"/{API_VERSION}/utils", tags=["utils"], dependencies=[])
+
+    app.include_router(PopularView().get_router(), prefix=f"/{API_VERSION}/popular", tags=["utils"], dependencies=[])
 
 
 if __name__ == "__main__":
