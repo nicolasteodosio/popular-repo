@@ -2,6 +2,8 @@ from logging import Logger
 
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
+from starlette import status
+from starlette.responses import JSONResponse
 
 router = InferringRouter()
 
@@ -15,4 +17,4 @@ class UtilsView:
 
     @router.get("/healthcheck")
     def health_check(self):
-        return {"message": "I'm alive"}
+        return JSONResponse(content={"message": "I'm alive"}, status_code=status.HTTP_200_OK)
