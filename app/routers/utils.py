@@ -14,5 +14,5 @@ class UtilsView:
         return router
 
     @router.get("/healthcheck")
-    async def health_check(self):
+    def health_check(self):
         return {"message": "I'm alive"}
