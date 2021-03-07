@@ -1,10 +1,9 @@
 import logging
 
+from config import FORK_MULTIPLIER, POPULAR_THRESHOLD, STAR_MULTIPLIER
+from exceptions import CalculateScoreException
 from schemas.github import GitHupApiResponse
 from schemas.popular import PopularResponseModel
-
-from app.config import FORK_MULTIPLIER, POPULAR_THRESHOLD, STAR_MULTIPLIER
-from app.exceptions import CalculateScoreException
 
 logger = logging.getLogger(__name__)
 
