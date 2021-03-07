@@ -8,12 +8,17 @@ fastapi = "*"
 nicelog = "*"
 fastapi-utils = "*"
 uvicorn = "*"
+requests = "*"
 
 [dev-packages]
 pre-commit = "*"
 black = "*"
 isort = "*"
 flake8 = "*"
+pytest-cov = "*"
+pytest = "*"
+pytest-mock = "*"
+requests-mock = "*"
 
 [requires]
 python_version = "3.8"
