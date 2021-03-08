@@ -9,6 +9,7 @@ nicelog = "*"
 fastapi-utils = "*"
 uvicorn = "*"
 requests = "*"
+redis = "*"
 
 [dev-packages]
 pre-commit = "*"

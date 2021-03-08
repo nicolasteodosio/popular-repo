@@ -1,3 +1,4 @@
+import json
 from logging import Logger
 
 from exceptions import (
@@ -11,6 +12,7 @@ from exceptions import (
 from fastapi.encoders import jsonable_encoder
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
+from services.cache import CacheService
 from services.github import GitHubService
 from services.popular import PopularService
 from starlette import status
@@ -23,9 +25,10 @@ logger = Logger(f"{__name__}")
 
 @cbv(router)
 class PopularView:
-    def __init__(self, *, github_service=None, popular_service=None):
+    def __init__(self, *, github_service=None, popular_service=None, cache_service=None):
         self.github_service = github_service or GitHubService()
         self.popular_service = popular_service or PopularService()
+        self.cache_service = cache_service or CacheService()
 
     def get_router(self):  # pragma: no cover
         return router
@@ -33,8 +36,15 @@ class PopularView:
     @router.get("/repository")
     def check(self, repository_name: str):
         try:
+            cache_value = self.cache_service.check(key=repository_name)
+
+            if cache_value:
+                cache_data = json.loads(cache_value)
+                return JSONResponse(content=cache_data, status_code=status.HTTP_200_OK)
+
             repo_data = self.github_service.get_info(repository_name=repository_name)
             popular_data = self.popular_service.calculate_score(repository_data=repo_data)
+            self.cache_service.set_key(key=repository_name, value=popular_data.dict())
 
             return JSONResponse(content=jsonable_encoder(popular_data), status_code=status.HTTP_200_OK)
 
