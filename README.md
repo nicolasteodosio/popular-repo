@@ -10,6 +10,10 @@
 ### Env files ###
 - Add you github access token to the `env.docker`
 
+### Running application
+ 
+- Run the `docker-compose up -d --build`
+- Application will be running at: `http://localhost:8083`
     
 ### Running the tests
 
@@ -37,3 +41,4 @@
 * Add the project to a [SonarQube](https://www.sonarqube.org/) or [Codacy](https://www.codacy.com/), to track code smells, bugs etc.
 * Make all the code works with async using asyncio and aiohttp and fastapi with async views to check if response would be better
 * The way I handled the org response with for loops I don't think i'ts the better way, fot that I think that using some async call with celery or similar would be better
+* Improve the logging for the application
