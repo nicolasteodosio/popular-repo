@@ -10,13 +10,13 @@ class RepositoryNameException(Exception):
     pass
 
 
-class RepositoryNotFoundException(Exception):
+class RequestNotFoundException(Exception):
     pass
 
 
-class RepositoryForbiddenException(Exception):
+class RequestForbiddenException(Exception):
     pass
 
 
-class RepositoryMovedPermanently(Exception):
+class RequestMovedPermanently(Exception):
     pass
