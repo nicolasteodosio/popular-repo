@@ -26,7 +26,8 @@
 
 ### Comments ###
 * The application was built with `fastapi` , mainly due to the speed of its implementation and the possibility of using the framework asynchronously*
-* I choose to use redis to cache the response from the api, this improved the response time from around 500 milliseconds to about 15 milliseconds
+* I choose to use redis to cache the response from the api, this improved the response time from around 500 milliseconds to about 15 milliseconds at the repository endpoint,
+  and at the org endpoint from 800 ms to 14ms
 * The application is using [pre-commit](https://pre-commit.com/) git hooks, with `black`, `flake8`, `isort`. So there is no need to worry about the code pattern during development
 * The application also has a `CI` using github-actions.
 
@@ -35,4 +36,4 @@
 * Integrate the project with [Sentry](https://sentry.io/welcome/) for security check
 * Add the project to a [SonarQube](https://www.sonarqube.org/) or [Codacy](https://www.codacy.com/), to track code smells, bugs etc.
 * Make all the code works with async using asyncio and aiohttp and fastapi with async views to check if response would be better
-
+* The way I handled the org response with for loops I don't think i'ts the better way, fot that I think that using some async call with celery or similar would be better
