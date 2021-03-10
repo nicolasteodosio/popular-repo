@@ -12,7 +12,7 @@ from exceptions import (
 from fastapi.encoders import jsonable_encoder
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from schemas.popular import PopularResponseListModel
+from schemas.popular import PopularResponseListModel, PopularResponseModel
 from services.cache import CacheService
 from services.github import GitHubService
 from services.popular import PopularService
@@ -34,7 +34,7 @@ class PopularView:
     def get_router(self):  # pragma: no cover
         return router
 
-    @router.get("/repository")
+    @router.get("/repository", response_model=PopularResponseModel)
     def check(self, repository_name: str):
         try:
             cache_value = self.cache_service.check(key=repository_name)
@@ -92,7 +92,7 @@ class PopularView:
                 content={"title": "Error", "message": "An error occurred when trying to calculate score"},
             )
 
-    @router.get("/org")
+    @router.get("/org", response_model=PopularResponseListModel)
     def check_org(self, org_name: str):
         try:
             cache_value = self.cache_service.check(key=org_name)
