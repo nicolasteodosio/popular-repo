@@ -4,12 +4,12 @@ import requests
 from config import GITHUB_API_ACCESS_TOKEN, GITHUB_API_URL
 from exceptions import (
     GitHubServiceRequestException,
-    RepositoryForbiddenException,
-    RepositoryMovedPermanently,
     RepositoryNameException,
-    RepositoryNotFoundException,
+    RequestForbiddenException,
+    RequestMovedPermanently,
+    RequestNotFoundException,
 )
-from schemas.github import GitHupApiResponse
+from schemas.github import GitHupApiOrgResponse, GitHupApiResponse
 from starlette import status
 
 logger = logging.getLogger(__name__)
@@ -34,24 +34,48 @@ class GitHubService:
             logger.error(f"An unexpected error occurred." f" ex: {ex}")
             raise GitHubServiceRequestException
 
-        if response.status_code == status.HTTP_404_NOT_FOUND:
-            logger.info(f"Repository: {repository_name} not found")
-            raise RepositoryNotFoundException
-
-        if response.status_code == status.HTTP_403_FORBIDDEN:
-            logger.error("Error: Request forbidden. Please check you access token")
-            raise RepositoryForbiddenException
-
-        if response.status_code == status.HTTP_301_MOVED_PERMANENTLY:
-            logger.error("Error: Moved permanently")
-            raise RepositoryMovedPermanently
-
-        if response.status_code != status.HTTP_200_OK:
-            logger.error(f"An unexpected error occurred." f" status: {response.status_code}")
-            raise GitHubServiceRequestException
+        self.check_response_status(kind="Repository", name=repository_name, response=response)
 
         data = response.json()
 
         return GitHupApiResponse(
             stars=data["stargazers_count"], forks=data["forks_count"], owner=owner, name=repository
         )
+
+    def check_response_status(self, kind: str, name: str, response):
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            logger.info(f"{kind}: {name} not found")
+            raise RequestNotFoundException
+        if response.status_code == status.HTTP_403_FORBIDDEN:
+            logger.error("Error: Request forbidden. Please check you access token")
+            raise RequestForbiddenException
+        if response.status_code == status.HTTP_301_MOVED_PERMANENTLY:
+            logger.error("Error: Moved permanently")
+            raise RequestMovedPermanently
+        if response.status_code != status.HTTP_200_OK:
+            logger.error(f"An unexpected error occurred." f" status: {response.status_code}")
+            raise GitHubServiceRequestException
+
+    def get_org_info(self, org_name: str):
+        try:
+            response = requests.get(
+                url=f"{self.url}/orgs/{org_name}/repos", headers={"Authorization": f"token {self.access_token}"}
+            )
+
+        except Exception as ex:
+            logger.error(f"An unexpected error occurred." f" ex: {ex}")
+            raise GitHubServiceRequestException
+
+        self.check_response_status(kind="Org", name=org_name, response=response)
+
+        all_data = response.json()
+        org_items = []
+
+        for data in all_data:
+            org_items.append(
+                GitHupApiResponse(
+                    stars=data["stargazers_count"], forks=data["forks_count"], owner=org_name, name=data["name"]
+                )
+            )
+
+        return GitHupApiOrgResponse(items=org_items)
